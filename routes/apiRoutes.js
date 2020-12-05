@@ -25,11 +25,12 @@ module.exports = function (app) {
         JSON.stringify(totalNotes, null, 2),
         (err, data) => {
           if (err) throw err;
-          res.send(totalNotes);
+          res.json(totalNotes);
           console.log('note created');
         }
       );
     });
+    res.json(note)
   });
   // delete
   app.delete('/api/notes/:id', function (req, res) {
