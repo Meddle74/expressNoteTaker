@@ -1,42 +1,40 @@
-const db = require('../db/db.json');
-
-const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
-
+var path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 module.exports = function (app) {
+  // get notes
   app.get('/api/notes', function (req, res) {
-    res.send(db);
+    //read the json data and returns it
+    res.sendFile(path.join(__dirname, '../db/db.json'));
   });
-  // post
-  app.post('/api/notes', function (req, res) {
+
+  // post note
+  app.post('/api/notes', (req, res) => {
     var noteid = uuidv4();
-    var note = {
-      id: noteid,
-      title: req.body.title,
-      text: req.body.text,
-    };
-    fs.readFile('./db/db.json', 'utf-8', (err, data) => {
+
+    var note = { id: noteid, title: req.body.title, text: req.body.text };
+
+    fs.readFile('./db/db.json', (err, data) => {
       if (err) throw err;
-      var totalNotes = JSON.parse(data);
-      totalNotes.push(note);
-      fs.writeFile(
-        './db/db.json',
-        JSON.stringify(totalNotes, null, 2),
-        (err, data) => {
-          if (err) throw err;
-          res.json(totalNotes);
-          console.log('note created');
-        }
-      );
+      var notes = JSON.parse(data);
+      notes.push(note);
+      console.log('This is after the read call');
+
+      fs.writeFile('./db/db.json', JSON.stringify(notes, null, 2), (err) => {
+        if (err) throw err;
+        console.log('This is after the write call');
+        res.json(notes);
+      });
     });
-    res.json(note)
   });
-  // delete
-  app.delete('/api/notes/:id', function (req, res) {
-    console.log('deleting');
-    // console.log(req.params.id);
+
+  // delete note
+  app.delete('/api/notes/:id', (req, res) => {
+    console.log('deleting...........');
+
     var noteid = req.params.id;
+
     fs.readFile('./db/db.json', 'utf-8', (err, data) => {
       if (err) throw err;
       var totalNotes = JSON.parse(data);
@@ -47,7 +45,7 @@ module.exports = function (app) {
         (err, data) => {
           if (err) throw err;
           res.send(newTotalNotes);
-          console.log('note deleted');
+          console.log('Your Note has been deleted!!!');
         }
       );
     });
